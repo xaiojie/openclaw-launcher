@@ -1,0 +1,10 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "sqlite" url = "file:./dev.db" }
+model install_sessions { id String @id @default(cuid()) state String progress Int @default(0) created_at DateTime @default(now()) updated_at DateTime @updatedAt }
+model runtime_instances { id String @id @default(cuid()) status String pid Int? updated_at DateTime @updatedAt }
+model local_assistants { id String @id @default(cuid()) name String model String enabled Boolean @default(true) }
+model local_model_configs { id String @id @default(cuid()) provider String model String api_key String? }
+model local_channel_configs { id String @id @default(cuid()) channel String config Json }
+model license_cache { id String @id @default(cuid()) license_key String status String expires_at DateTime? }
+model usage_snapshots { id String @id @default(cuid()) tokens Int cost Float created_at DateTime @default(now()) }
+model runtime_logs { id String @id @default(cuid()) level String message String created_at DateTime @default(now()) }

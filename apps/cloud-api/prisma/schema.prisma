@@ -1,0 +1,11 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "mysql" url = env("DATABASE_URL") }
+model users { id String @id @default(cuid()) email String @unique password_hash String created_at DateTime @default(now()) }
+model devices { id String @id @default(cuid()) user_id String device_fingerprint String platform String created_at DateTime @default(now()) }
+model plans { id String @id @default(cuid()) code String @unique name String price_monthly Decimal @db.Decimal(10,2) }
+model subscriptions { id String @id @default(cuid()) user_id String plan_id String status String started_at DateTime @default(now()) expires_at DateTime? }
+model payment_orders { id String @id @default(cuid()) user_id String amount Decimal @db.Decimal(10,2) status String provider String created_at DateTime @default(now()) }
+model licenses { id String @id @default(cuid()) user_id String key String @unique status String issued_at DateTime @default(now()) }
+model usage_daily { id String @id @default(cuid()) user_id String day DateTime tokens Int cost Decimal @db.Decimal(10,4) }
+model update_releases { id String @id @default(cuid()) version String @unique notes String published_at DateTime @default(now()) }
+model install_events { id String @id @default(cuid()) user_id String platform String version String created_at DateTime @default(now()) }
