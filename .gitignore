@@ -1,0 +1,10 @@
+node_modules
+.pnpm-store
+.turbo
+dist
+build
+coverage
+.env
+*.log
+apps/**/prisma/dev.db
+apps/**/prisma/*.db*
