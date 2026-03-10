@@ -1,3 +1,3 @@
 export class DaemonManager {
-  // TODO: implement daemon-manager
+  // 预留守护进程管理能力，MVP 阶段暂不启用。
 }

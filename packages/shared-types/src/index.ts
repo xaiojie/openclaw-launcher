@@ -5,3 +5,4 @@ export * from './model';
 export * from './runtime';
 export * from './license';
 export * from './usage';
+export * from './chat';

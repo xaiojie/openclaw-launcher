@@ -1,3 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
+import { HealthService } from './health.service';
+
 @Controller('health')
-export class HealthController { @Get('gateway') gateway() { return { status: 'ok' }; } @Get('install') install() { return { status: 'ok' }; } }
+export class HealthController {
+  constructor(private readonly healthService: HealthService) {}
+
+  @Get('gateway')
+  gateway() {
+    return this.healthService.gateway();
+  }
+
+  @Get('install')
+  install() {
+    return this.healthService.install();
+  }
+}

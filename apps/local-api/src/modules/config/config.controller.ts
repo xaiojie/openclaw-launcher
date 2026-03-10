@@ -1,8 +1,18 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ConfigService } from './config.service';
+import { SaveModelConfigDto } from './dto/config.dto';
+
 @Controller('config')
 export class ConfigController {
-  @Post('model') model() { return { ok: true }; }
-  @Post('channel') channel() { return { ok: true }; }
-  @Post('generate') generate() { return { files: ['openclaw.json', '.env'] }; }
-  @Get('preview') preview() { return { json: '{"assistant":"demo"}', env: 'OPENCLAW_ENV=local' }; }
+  constructor(private readonly configService: ConfigService) {}
+
+  @Post('model')
+  saveModel(@Body() dto: SaveModelConfigDto) {
+    return this.configService.saveModelConfig(dto);
+  }
+
+  @Get('model')
+  getModel() {
+    return this.configService.getModelConfig();
+  }
 }

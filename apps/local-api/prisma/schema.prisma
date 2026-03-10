@@ -1,10 +1,128 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "sqlite" url = "file:./dev.db" }
-model install_sessions { id String @id @default(cuid()) state String progress Int @default(0) created_at DateTime @default(now()) updated_at DateTime @updatedAt }
-model runtime_instances { id String @id @default(cuid()) status String pid Int? updated_at DateTime @updatedAt }
-model local_assistants { id String @id @default(cuid()) name String model String enabled Boolean @default(true) }
-model local_model_configs { id String @id @default(cuid()) provider String model String api_key String? }
-model local_channel_configs { id String @id @default(cuid()) channel String config Json }
-model license_cache { id String @id @default(cuid()) license_key String status String expires_at DateTime? }
-model usage_snapshots { id String @id @default(cuid()) tokens Int cost Float created_at DateTime @default(now()) }
-model runtime_logs { id String @id @default(cuid()) level String message String created_at DateTime @default(now()) }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model install_sessions {
+  /// 安装会话主键。
+  id String @id @default(cuid())
+  /// 当前安装状态。
+  state String
+  /// 安装进度，范围 0-100。
+  progress Int @default(0)
+  /// 当前状态说明文案。
+  message String
+  /// 安装过程日志列表。
+  logs Json
+  /// 失败时的错误信息。
+  error_message String?
+  /// 会话创建时间。
+  created_at DateTime @default(now())
+  /// 会话更新时间。
+  updated_at DateTime @updatedAt
+
+  runtime_logs runtime_logs[]
+}
+
+model runtime_instances {
+  /// 运行实例主键。
+  id String @id @default(cuid())
+  /// 运行状态：running/stopped/not_installed。
+  status String
+  /// 网关进程 PID。
+  pid Int?
+  /// 是否已安装 OpenClaw。
+  installed Boolean @default(false)
+  /// 最近一次健康检查是否通过。
+  healthy Boolean @default(false)
+  /// 最近一次健康检查时间。
+  health_checked_at DateTime?
+  /// 运行状态更新时间。
+  updated_at DateTime @updatedAt
+
+  runtime_logs runtime_logs[]
+}
+
+model local_model_configs {
+  /// 模型配置主键。
+  id String @id @default(cuid())
+  /// 提供商名称，例如 deepseek。
+  provider String
+  /// 默认模型名称。
+  model String
+  /// 模型 API Key。
+  api_key String
+  /// 提供商自定义地址。
+  base_url String?
+  /// 是否启用该配置。
+  is_active Boolean @default(true)
+  /// 创建时间。
+  created_at DateTime @default(now())
+  /// 更新时间。
+  updated_at DateTime @updatedAt
+
+  @@unique([provider])
+}
+
+model chat_conversations {
+  /// 会话主键。
+  id String @id @default(cuid())
+  /// 会话标题。
+  title String
+  /// 会话创建时间。
+  created_at DateTime @default(now())
+  /// 会话更新时间。
+  updated_at DateTime @updatedAt
+
+  chat_messages chat_messages[]
+}
+
+model chat_messages {
+  /// 消息主键。
+  id String @id @default(cuid())
+  /// 所属会话主键。
+  conversation_id String
+  /// 消息角色：user/assistant/system。
+  role String
+  /// 消息正文。
+  content String
+  /// 模型提供商。
+  provider String
+  /// 模型名称。
+  model String
+  /// 消息创建时间。
+  created_at DateTime @default(now())
+
+  chat_conversation chat_conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  @@index([conversation_id, created_at])
+}
+
+model runtime_logs {
+  /// 日志主键。
+  id String @id @default(cuid())
+  /// 日志来源：安装器/运行时/健康检查等。
+  source String
+  /// 日志级别。
+  level String
+  /// 所属阶段。
+  stage String?
+  /// 日志内容。
+  message String
+  /// 关联安装会话主键。
+  install_session_id String?
+  /// 关联运行实例主键。
+  runtime_instance_id String?
+  /// 日志创建时间。
+  created_at DateTime @default(now())
+
+  install_session install_sessions? @relation(fields: [install_session_id], references: [id], onDelete: SetNull)
+  runtime_instance runtime_instances? @relation(fields: [runtime_instance_id], references: [id], onDelete: SetNull)
+
+  @@index([install_session_id, created_at])
+  @@index([runtime_instance_id, created_at])
+}

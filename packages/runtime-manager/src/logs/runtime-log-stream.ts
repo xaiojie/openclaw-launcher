@@ -1,3 +1,3 @@
 export class RuntimeLogStream {
-  // TODO: implement runtime-log-stream
+  // 预留日志流分发能力，MVP 阶段暂不启用。
 }
